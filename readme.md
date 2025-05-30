@@ -4,7 +4,6 @@ Watch2TON is a Telegram WebApp game that rewards users with TON tokens for watch
 
 ## 🔗 Live Demo
 👉 [Launch Watch2TON in Telegram](https://t.me/Watch2ton_bot/Watch2TON)  
-*(Replace with your bot’s username and webapp path)*
 
 ---
 
