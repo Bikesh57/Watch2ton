@@ -1,11 +1,11 @@
-const bot = require("./botInstance");
+import bot from '../botInstance.js';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   try {
     await bot.processUpdate(req.body);
-    res.status(200).send("OK");
+    res.status(200).send('OK');
   } catch (error) {
-    console.error("Error processing update:", error);
-    res.status(500).send("Error");
+    console.error('Error processing update:', error);
+    res.status(500).send('Error');
   }
-};
+}
