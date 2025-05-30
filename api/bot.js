@@ -1,6 +1,7 @@
 // /api/bot.js
 const bot = require('../botInstance');
 
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');
