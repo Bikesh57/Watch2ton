@@ -2,29 +2,29 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const TelegramBot = require("node-telegram-bot-api");
-
 const fs = require("fs-extra");
+
 const USERS_FILE = "users.json";
 let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
 const app = express();
-const PORT = 3000;
-const NGROK_URL = "https://3dab-2407-1400-aa3d-6250-903b-8cca-1d63-3622.ngrok-free.app";
-const TELEGRAM_BOT_TOKEN = "7704408902:AAFnuxZcvt_cFhGGZl2eqwoZlQiv7owWzrs";
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const WEBHOOK_URL = process.env.WEBHOOK_URL || "https://watch2ton.vercel.app/api/bot"; // Vercel path must start with /api
+
+if (!TELEGRAM_BOT_TOKEN) {
+  throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
+}
+
+// Initialize bot for webhook mode only
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 
+// Telegram webhook endpoint
+app.post("/api/bot", (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
 
-
-bot.command('start', (ctx) => ctx.reply('Hello from Watch2TON'))
-
-app.use(bot.webhookCallback('/bot'))
-bot.setWebhook('https://watch2ton.vercel.app/bot')
-
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static("public"));
-
-// Register /start listener globally
+// Bot logic: on /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -34,7 +34,7 @@ bot.onText(/\/start/, (msg) => {
       keyboard: [[
         {
           text: "🚀 Launch Watch2TON",
-          web_app: { url: `${NGROK_URL}?start=${userId}` }
+          web_app: { url: `https://watch2ton.vercel.app/?start=${userId}` }
         }
       ]],
       resize_keyboard: true,
@@ -44,6 +44,12 @@ bot.onText(/\/start/, (msg) => {
 
   bot.sendMessage(chatId, "🎉 Welcome to Watch2TON! Click below to launch the app and start earning TON by watching ads.", keyboard);
 });
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static("public"));
+
+// ===================== API ROUTES =====================
 
 // Get or create user
 app.get("/api/user/:userId", (req, res) => {
@@ -73,7 +79,7 @@ app.post("/api/watch", (req, res) => {
     return res.status(404).json({ success: false, message: "User not found." });
   }
 
-  // Reset daily ad limit if 24 hours have passed
+  // Reset daily ad limit if 24 hours passed
   const now = Date.now();
   const lastReset = user.lastReset || 0;
   if (now - lastReset >= 24 * 60 * 60 * 1000) {
@@ -88,7 +94,6 @@ app.post("/api/watch", (req, res) => {
   user.adsWatched += 1;
   user.coins += 1;
 
-  // Referral bonus for first ad watch
   if (user.adsWatched === 1 && user.refBy && !user.hasRewardedReferrer) {
     const referrer = users[user.refBy];
     if (referrer) {
@@ -99,10 +104,9 @@ app.post("/api/watch", (req, res) => {
     }
   }
 
-  // Save user data to file
   fs.writeJsonSync(USERS_FILE, users);
 
-  return res.json({
+  res.json({
     success: true,
     coins: user.coins,
     adsWatched: user.adsWatched
@@ -123,16 +127,15 @@ app.post("/api/withdraw", (req, res) => {
   }
 
   const withdrawnCoins = user.coins;
-  const tonAmount = (withdrawnCoins * 0.0001).toFixed(4); // Rounded to 4 decimal places
+  const tonAmount = (withdrawnCoins * 0.0001).toFixed(4);
 
   user.coins = 0;
 
   bot.sendMessage(userId, `💸 Withdrawal request received for ${withdrawnCoins} coins (${tonAmount} TON). Processing soon...`);
 
-  // Save user data to file
   fs.writeJsonSync(USERS_FILE, users);
 
-  return res.json({
+  res.json({
     success: true,
     message: `Withdrawal request received for ${tonAmount} TON!`
   });
@@ -155,4 +158,3 @@ app.get("/api/referral-stats/:userId", (req, res) => {
 });
 
 module.exports = app;
-
