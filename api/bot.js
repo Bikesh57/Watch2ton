@@ -1,6 +1,12 @@
-import bot from '../botInstance.js';
+// /api/bot.js
+const bot = require('../botInstance');
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed');
+    return;
+  }
+
   try {
     await bot.processUpdate(req.body);
     res.status(200).send('OK');
@@ -8,4 +14,4 @@ export default async function handler(req, res) {
     console.error('Error processing update:', error);
     res.status(500).send('Error');
   }
-}
+};
