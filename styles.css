@@ -1,0 +1,134 @@
+/* Reset & basic styling */
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* disable scrolling */
+  font-family: Arial, sans-serif;
+  background: #f0f4f8;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.container {
+  padding: 20px;
+  text-align: center;
+  flex-grow: 1;
+  overflow: auto;
+}
+
+.logo {
+  max-width: 150px;
+  margin-bottom: 20px;
+}
+
+.coin-display {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.coin-icon {
+  width: 30px;
+  height: 30px;
+}
+
+#ad-container, #ads-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.ad-button {
+  background-color: #2a9d8f;
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  min-width: 100px;
+  transition: background-color 0.3s ease;
+}
+
+.ad-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.ad-button:hover:not(:disabled) {
+  background-color: #21867a;
+}
+
+.timer {
+  font-size: 1.2rem;
+  color: #e76f51;
+  margin-bottom: 20px;
+}
+
+#bottomButtons {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px 0;
+  z-index: 100;
+}
+
+#bottomButtons button {
+  background-color: #264653;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  transition: background-color 0.3s ease;
+}
+
+#bottomButtons button:hover {
+  background-color: #1b3330;
+}
+
+#withdrawBtn .icon {
+  width: 18px;
+  height: 18px;
+}
+
+#referralBox input {
+  padding: 5px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  user-select: all;
+}
+
+#referralBox button {
+  padding: 5px 10px;
+  margin-left: 5px;
+  border: none;
+  background-color: #2a9d8f;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+#referralBox button:hover {
+  background-color: #21867a;
+}
