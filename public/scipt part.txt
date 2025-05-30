@@ -1,0 +1,31 @@
+function watchAd() {
+    if (cooldown) return;
+    if (adsWatched >= 10) {
+      alert("You've reached your 10-ad daily limit.");
+      return;
+    }
+
+    setCooldown(10);
+
+    setTimeout(() => {
+      fetch("/api/watch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            coins = data.coins || coins;
+            adsWatched = data.adsWatched || adsWatched;
+            updateDisplay();
+          } else {
+            alert(data.message || "Ad failed, please try again.");
+          }
+        })
+        .catch(err => {
+          console.error("Error watching ad:", err);
+          alert("Failed to watch ad. Please try again.");
+        });
+    }, 5000);
+  }

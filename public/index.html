@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Watch2TON – Earn Free TON in Minutes</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* disable scrolling */
+      font-family: sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      text-align: center;
+      padding-top: 20px;
+    }
+
+    .logo {
+      width: 100px;
+      margin-bottom: 10px;
+    }
+
+    .coin-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .coin-icon {
+      width: 30px;
+      margin-right: 8px;
+    }
+
+    .ad-button {
+      display: block;
+      width: 80%;
+      margin: 5px auto;
+      padding: 10px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+
+    .timer {
+      margin: 10px;
+      font-size: 14px;
+      color: red;
+    }
+
+    #withdrawBtn {
+      position: fixed;
+      bottom: 10px;
+      left: 5%;
+      width: 90%;
+      padding: 12px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      z-index: 5;
+    }
+
+    #bottomButtons {
+      position: fixed;
+      bottom: 70px;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      z-index: 10;
+    }
+
+    #bottomButtons button {
+      padding: 10px 14px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+
+    #referralBox,
+    #referralStatsBox {
+      position: fixed;
+      top: 20%;
+      left: 10%;
+      width: 80%;
+      background: white;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      display: none;
+      z-index: 20;
+    }
+
+    #referralBox input {
+      width: 80%;
+      padding: 8px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="App Logo" class="logo" />
+    <div class="coin-display">
+      <img src="coin.png" alt="Coin Icon" class="coin-icon" />
+      <span id="coinCount">0</span> Coins
+    </div>
+    <div id="ads-container">
+      <button class="ad-button">Watch Ad 1</button>
+      <button class="ad-button">Watch Ad 2</button>
+      <button class="ad-button">Watch Ad 3</button>
+      <button class="ad-button">Watch Ad 4</button>
+      <button class="ad-button">Watch Ad 5</button>
+    </div>
+    <div class="timer" id="cooldown" style="display:none;">Please wait...</div>
+  </div>
+
+  <!-- Bottom Buttons -->
+  <div id="bottomButtons">
+    <button id="inviteBtn">Invite Friends</button>
+    <button id="statsBtn">Referral Stats</button>
+  </div>
+
+  <!-- Withdraw Button -->
+  <button id="withdrawBtn">
+    <img src="withdraw.png" class="icon" /> Withdraw TON
+  </button>
+
+<button onclick="connectWallet()">🔗 Connect Wallet</button>
+
+  <!-- Hidden Popups -->
+  <div id="referralBox">
+    <input type="text" id="referralLink" readonly />
+    <button id="copyReferralBtn">Copy</button>
+    <button id="closeReferralBtn">Close</button>
+  </div>
+
+  <div id="referralStatsBox">
+    <p>You have referred <span id="referralCount">0</span> users!</p>
+    <button id="closeStatsBtn">Close</button>
+  </div>
+
+
+//mockup
+<!-- ✅ Keep only this -->
+<div id="ad-overlay" style="
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  z-index: 9999;
+  text-align: center;
+">
+  <div id="ad-timer">Mock Ad playing... Please wait 5</div>
+</div>
+
+
+
+
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    console.log('Telegram user:', tg.initDataUnsafe.user);
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
