@@ -8,23 +8,36 @@ const USERS_FILE = "users.json";
 let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
 const app = express();
+
+// Load environment variables
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const WEBHOOK_URL = process.env.WEBHOOK_URL || "https://watch2ton.vercel.app/api/bot"; // Vercel path must start with /api
+const WEBHOOK_URL = process.env.WEBHOOK_URL || "https://watch2ton.vercel.app/api/bot";
 
 if (!TELEGRAM_BOT_TOKEN) {
   throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
 }
 
-// Initialize bot for webhook mode only
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 
-// Telegram webhook endpoint
-app.post("/api/bot", (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
+// Set webhook for Telegram bot
+(async () => {
+  try {
+    await bot.deleteWebHook();
+    await bot.setWebHook(WEBHOOK_URL);
+    console.log(`✅ Webhook set to: ${WEBHOOK_URL}`);
+  } catch (error) {
+    console.error("❌ Failed to set webhook:", error.message);
+  }
+})();
 
-// Bot logic: on /start
+// Middleware for Telegram webhook
+app.use('/api/bot', bot.webhookCallback('/api/bot'));
+
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static("public"));
+
+// Handle /start command
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
@@ -34,7 +47,7 @@ bot.onText(/\/start/, (msg) => {
       keyboard: [[
         {
           text: "🚀 Launch Watch2TON",
-          web_app: { url: `https://watch2ton.vercel.app/?start=${userId}` }
+          web_app: { url: `https://watch2ton.vercel.app?start=${userId}` }
         }
       ]],
       resize_keyboard: true,
@@ -45,13 +58,7 @@ bot.onText(/\/start/, (msg) => {
   bot.sendMessage(chatId, "🎉 Welcome to Watch2TON! Click below to launch the app and start earning TON by watching ads.", keyboard);
 });
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static("public"));
-
-// ===================== API ROUTES =====================
-
-// Get or create user
+// API: Get or create user
 app.get("/api/user/:userId", (req, res) => {
   const { userId } = req.params;
   const ref = req.query.ref;
@@ -64,13 +71,13 @@ app.get("/api/user/:userId", (req, res) => {
       hasRewardedReferrer: false,
       lastReset: Date.now()
     };
-    console.log(`New user ${userId} created. Referred by: ${ref || "none"}`);
+    console.log(`🆕 New user: ${userId}, Referred by: ${ref || "None"}`);
   }
 
   res.json(users[userId]);
 });
 
-// Watch ad
+// API: Watch ad
 app.post("/api/watch", (req, res) => {
   const { userId } = req.body;
   const user = users[userId];
@@ -79,10 +86,8 @@ app.post("/api/watch", (req, res) => {
     return res.status(404).json({ success: false, message: "User not found." });
   }
 
-  // Reset daily ad limit if 24 hours passed
   const now = Date.now();
-  const lastReset = user.lastReset || 0;
-  if (now - lastReset >= 24 * 60 * 60 * 1000) {
+  if (now - (user.lastReset || 0) >= 24 * 60 * 60 * 1000) {
     user.adsWatched = 0;
     user.lastReset = now;
   }
@@ -99,21 +104,17 @@ app.post("/api/watch", (req, res) => {
     if (referrer) {
       referrer.coins += 5;
       user.hasRewardedReferrer = true;
-      console.log(`Referrer ${user.refBy} rewarded by ${userId}'s first ad`);
+      console.log(`🎁 Referrer ${user.refBy} rewarded by ${userId}`);
       bot.sendMessage(user.refBy, `🎉 You earned 5 coins from your referral ${userId}'s first ad watch!`);
     }
   }
 
   fs.writeJsonSync(USERS_FILE, users);
 
-  res.json({
-    success: true,
-    coins: user.coins,
-    adsWatched: user.adsWatched
-  });
+  res.json({ success: true, coins: user.coins, adsWatched: user.adsWatched });
 });
 
-// Withdraw
+// API: Withdraw
 app.post("/api/withdraw", (req, res) => {
   const { userId } = req.body;
   const user = users[userId];
@@ -128,20 +129,15 @@ app.post("/api/withdraw", (req, res) => {
 
   const withdrawnCoins = user.coins;
   const tonAmount = (withdrawnCoins * 0.0001).toFixed(4);
-
   user.coins = 0;
 
   bot.sendMessage(userId, `💸 Withdrawal request received for ${withdrawnCoins} coins (${tonAmount} TON). Processing soon...`);
-
   fs.writeJsonSync(USERS_FILE, users);
 
-  res.json({
-    success: true,
-    message: `Withdrawal request received for ${tonAmount} TON!`
-  });
+  res.json({ success: true, message: `Withdrawal request received for ${tonAmount} TON!` });
 });
 
-// Referral stats
+// API: Referral stats
 app.get("/api/referral-stats/:userId", (req, res) => {
   const { userId } = req.params;
   let referrals = 0;
