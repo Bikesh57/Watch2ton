@@ -11,7 +11,14 @@ const app = express();
 const PORT = 3000;
 const NGROK_URL = "https://3dab-2407-1400-aa3d-6250-903b-8cca-1d63-3622.ngrok-free.app";
 const TELEGRAM_BOT_TOKEN = "7704408902:AAFnuxZcvt_cFhGGZl2eqwoZlQiv7owWzrs";
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
+
+
+
+bot.command('start', (ctx) => ctx.reply('Hello from Watch2TON'))
+
+app.use(bot.webhookCallback('/bot'))
+bot.setWebhook('https://watch2ton.vercel.app/bot')
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -147,6 +154,5 @@ app.get("/api/referral-stats/:userId", (req, res) => {
   res.json({ referrals, bonus });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+module.exports = app;
+
