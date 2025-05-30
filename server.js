@@ -31,7 +31,11 @@ const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 })();
 
 // Middleware for Telegram webhook
-app.use('/api/bot', bot.webhookCallback('/api/bot'));
+app.post('/api/bot', (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
+
 
 app.use(cors());
 app.use(bodyParser.json());
