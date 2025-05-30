@@ -1,0 +1,9 @@
+{
+  "manifest_version": "1",
+  "name": "Watch2TON",
+  "url": "https://watch2ton.vercel.app",
+  "iconUrl": "https://watch2ton.vercel.app/logo.png",
+  "termsOfUseUrl": "https://watch2ton.vercel.app/terms",
+  "privacyPolicyUrl": "https://watch2ton.vercel.app/privacy",
+  "enabledWallets": ["tonkeeper"]
+}

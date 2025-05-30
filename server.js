@@ -9,7 +9,7 @@ let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
 const app = express();
 const PORT = 3000;
-const NGROK_URL = "https://62d3-2407-1400-aa3d-6250-903b-8cca-1d63-3622.ngrok-free.app";
+const NGROK_URL = "https://3dab-2407-1400-aa3d-6250-903b-8cca-1d63-3622.ngrok-free.app";
 const TELEGRAM_BOT_TOKEN = "7704408902:AAFnuxZcvt_cFhGGZl2eqwoZlQiv7owWzrs";
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 

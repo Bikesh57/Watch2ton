@@ -55,6 +55,21 @@
       color: red;
     }
 
+#connectWalletBtn {
+  position: fixed;
+  bottom: 130px; /* Above Invite/Stats which are at 70px, and Withdraw which is at 10px */
+  left: 5%;
+  width: 90%;
+  padding: 12px;
+  background-color: #0056b3;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  z-index: 15;
+}
+
+
     #withdrawBtn {
       position: fixed;
       bottom: 10px;
@@ -127,16 +142,19 @@
 
   <!-- Bottom Buttons -->
   <div id="bottomButtons">
+<!-- Add an id to the connect button -->
+<button id="connectWalletBtn" onclick="connectWallet()">🔗 Connect Wallet</button>
     <button id="inviteBtn">Invite Friends</button>
     <button id="statsBtn">Referral Stats</button>
   </div>
+
+
 
   <!-- Withdraw Button -->
   <button id="withdrawBtn">
     <img src="withdraw.png" class="icon" /> Withdraw TON
   </button>
 
-<button onclick="connectWallet()">🔗 Connect Wallet</button>
 
   <!-- Hidden Popups -->
   <div id="referralBox">
@@ -151,26 +169,6 @@
   </div>
 
 
-//mockup
-<!-- ✅ Keep only this -->
-<div id="ad-overlay" style="
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  color: white;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  z-index: 9999;
-  text-align: center;
-">
-  <div id="ad-timer">Mock Ad playing... Please wait 5</div>
-</div>
-
 
 
 
@@ -181,6 +179,9 @@
     tg.expand();
     console.log('Telegram user:', tg.initDataUnsafe.user);
   </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+
 
   <script src="script.js"></script>
 </body>

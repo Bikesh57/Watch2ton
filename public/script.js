@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let coins = 0;
   let cooldown = false;
 
+let tonConnect;
+
   const coinDisplay = document.getElementById("coinCount");
   const watchButtons = document.querySelectorAll(".ad-button");
   const withdrawBtn = document.getElementById("withdrawBtn");
@@ -13,9 +15,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const referralStatsBtn = document.getElementById("statsBtn");
   const copyReferralBtn = document.getElementById("copyReferralBtn");
 
-const mockAdPopup = document.getElementById("mockAdPopup");
-const mockAdTimer = document.getElementById("mockAdTimer");
-const closeAdBtn = document.getElementById("closeAdBtn");
+
+const adButtons = document.querySelectorAll('.ad-button');
+
+adButtons.forEach((button, index) => {
+  button.addEventListener('click', () => {
+    // Replace with your actual Adsterra link
+    const adWindow = window.open("https://www.profitableratecpm.com/v2zuqzjp?key=6daf7222fff905ca7e6c5f88b684e86e", "_blank");
+
+    // OPTIONAL: You can track the ad click
+    console.log(`Ad ${index + 1} clicked`);
+
+    // After ad window is opened, wait and then reward (mock fallback)
+    setTimeout(() => {
+      alert('Thanks for watching! You earned 1 coin.');
+      let count = parseInt(document.getElementById('coinCount').textContent);
+      document.getElementById('coinCount').textContent = count + 1;
+    }, 10000); // Give 10 seconds for ad interaction
+  });
+});
+
 
 
   // Store original texts of buttons
@@ -118,6 +137,29 @@ const closeAdBtn = document.getElementById("closeAdBtn");
   }, 1000);
 }
 
+//connect wallet
+function connectWallet() {
+  if (typeof TonConnect === 'undefined') {
+    alert("TONConnect SDK not loaded!");
+    return;
+  }
+
+  const tonConnect = new TonConnect({
+    manifestUrl: 'https://your-vercel-url.vercel.app/tonconnect-manifest.json' // Replace with real URL later
+  });
+
+  tonConnect.connect()
+    .then(() => {
+      alert("Wallet connected!");
+    })
+    .catch((err) => {
+      alert("Failed to connect wallet: " + err.message);
+    });
+}
+
+
+
+
   function withdrawTON() {
     if (coins < 100) {
       alert("You need at least 100 coins (0.01 TON) to withdraw.");
@@ -209,29 +251,3 @@ const closeAdBtn = document.getElementById("closeAdBtn");
 
   loadUser();
 });
-
-// TonConnect wallet connect function - define globally
-window.connectWallet = async function () {
-  if (!window.TonConnect) {
-    alert("TonConnect SDK not loaded.");
-    return;
-  }
-
-  const connector = new TonConnect.TonConnect();
-
-  await connector.restoreConnection();
-
-  if (!connector.connected) {
-    connector.connectWallet({
-      universalLink: 'https://ton-connect.github.io/open-tc',
-      bridgeUrl: 'https://bridge.tonapi.io/bridge'
-    });
-  }
-
-  connector.onStatusChange((walletInfo) => {
-    if (connector.connected) {
-      console.log("Connected:", walletInfo.account.address);
-      // optionally send wallet address to backend here
-    }
-  });
-};
