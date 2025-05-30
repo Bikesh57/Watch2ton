@@ -17,7 +17,8 @@ if (!TELEGRAM_BOT_TOKEN) {
   throw new Error("Missing TELEGRAM_BOT_TOKEN environment variable");
 }
 
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: false });
+
 
 // Set webhook for Telegram bot
 (async () => {
