@@ -6,7 +6,8 @@ let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
 
-  const { userId } = req.body;
+  // ✅ Accept both 'userId' and fallback to 'telegramId'
+  const userId = req.body.userId || req.body.telegramId;
   const user = users[userId];
 
   if (!user) return res.status(404).json({ success: false, message: "User not found." });

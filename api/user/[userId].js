@@ -2,8 +2,11 @@ const fs = require("fs-extra");
 const USERS_FILE = "users.json";
 
 export default async function handler(req, res) {
-  const { userId } = req.query;
-  const ref = req.query.ref;
+  const { userId, ref } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ error: "Missing userId in query" });
+  }
 
   let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
@@ -16,8 +19,8 @@ export default async function handler(req, res) {
       lastReset: Date.now()
     };
     console.log(`🆕 New user: ${userId}, Referred by: ${ref || "None"}`);
+    fs.writeJsonSync(USERS_FILE, users); // Only write when a new user is added
   }
 
-  fs.writeJsonSync(USERS_FILE, users);
   res.status(200).json(users[userId]);
 }

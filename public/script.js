@@ -157,10 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   referralStatsBtn.addEventListener("click", () => {
-    fetch(`/api/referral-stats/${userId}`)
+    fetch(`/api/referral-stats/${userId}?userId=${userId}`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("referralCount").textContent = data.referrals || 0;
+        document.getElementById("referralCount").textContent = data.referrals?.length || 0;
         document.getElementById("referralStatsBox").style.display = "block";
       })
       .catch(() => {
