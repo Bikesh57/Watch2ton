@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>  
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -178,9 +178,16 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
     console.log('Telegram user:', tg.initDataUnsafe.user);
-  </script>
+ <script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.expand();
+  console.log('Telegram user:', tg.initDataUnsafe.user);
 
-<script src="https://cdn.jsdelivr.net/npm/@tonconnect/sdk@latest/dist/tonconnect-sdk.min.js"></script>
+  function connectWallet() {
+    alert("Wallet connection logic goes here!");
+  }
+</script>
 
 
   <script src="/script.js"></script>

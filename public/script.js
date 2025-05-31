@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let coins = 0;
   let cooldown = false;
 
-let tonConnect;
-
   const coinDisplay = document.getElementById("coinCount");
   const watchButtons = document.querySelectorAll(".ad-button");
   const withdrawBtn = document.getElementById("withdrawBtn");
@@ -15,29 +13,6 @@ let tonConnect;
   const referralStatsBtn = document.getElementById("statsBtn");
   const copyReferralBtn = document.getElementById("copyReferralBtn");
 
-
-const adButtons = document.querySelectorAll('.ad-button');
-
-adButtons.forEach((button, index) => {
-  button.addEventListener('click', () => {
-    // Replace with your actual Adsterra link
-    const adWindow = window.open("https://www.profitableratecpm.com/v2zuqzjp?key=6daf7222fff905ca7e6c5f88b684e86e", "_blank");
-
-    // OPTIONAL: You can track the ad click
-    console.log(`Ad ${index + 1} clicked`);
-
-    // After ad window is opened, wait and then reward (mock fallback)
-    setTimeout(() => {
-      alert('Thanks for watching! You earned 1 coin.');
-      let count = parseInt(document.getElementById('coinCount').textContent);
-      document.getElementById('coinCount').textContent = count + 1;
-    }, 10000); // Give 10 seconds for ad interaction
-  });
-});
-
-
-
-  // Store original texts of buttons
   const originalButtonTexts = Array.from(watchButtons).map(btn => btn.textContent);
 
   function updateDisplay() {
@@ -53,7 +28,7 @@ adButtons.forEach((button, index) => {
     cooldown = true;
     let remaining = seconds;
 
-    watchButtons.forEach(btn => {
+    watchButtons.forEach((btn, i) => {
       btn.disabled = true;
       btn.textContent = `Wait ${remaining}s...`;
     });
@@ -61,7 +36,9 @@ adButtons.forEach((button, index) => {
     const timer = setInterval(() => {
       remaining--;
       if (remaining > 0) {
-        watchButtons.forEach(btn => (btn.textContent = `Wait ${remaining}s...`));
+        watchButtons.forEach((btn, i) => {
+          btn.textContent = `Wait ${remaining}s...`;
+        });
       } else {
         clearInterval(timer);
         cooldown = false;
@@ -86,33 +63,29 @@ adButtons.forEach((button, index) => {
       });
   }
 
- function watchAd() {
+  function watchAd() {
   if (cooldown) return;
   if (adsWatched >= 10) {
     alert("You've reached your 10-ad daily limit.");
     return;
   }
 
-  const overlay = document.getElementById("ad-overlay");
-  const timerText = document.getElementById("ad-timer");
+  const adUrl = "https://www.profitableratecpm.com/v2zuqzjp?key=6daf7222fff905ca7e6c5f88b684e86e";
+  const adWindow = window.open(adUrl, "_blank", "width=500,height=600");
 
-  // Show mock ad overlay
-  overlay.style.display = "flex";
+  if (!adWindow) {
+    alert("Please allow popups to watch ads.");
+    return;
+  }
 
-  let seconds = 5;
-  timerText.textContent = `Mock Ad playing... Please wait ${seconds}`;
+  const requiredSeconds = 5;
+  let secondsOpen = 0;
 
-  const countdown = setInterval(() => {
-    seconds--;
-    if (seconds > 0) {
-      timerText.textContent = `Mock Ad playing... Please wait ${seconds}`;
-    } else {
-      clearInterval(countdown);
-      overlay.style.display = "none"; // hide ad overlay
-
-      // Proceed to reward user
-      setCooldown(10);
-      setTimeout(() => {
+  const checkAdInterval = setInterval(() => {
+    if (adWindow.closed) {
+      clearInterval(checkAdInterval);
+      if (secondsOpen >= requiredSeconds) {
+        setCooldown(10);
         fetch("/api/watch", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -125,44 +98,27 @@ adButtons.forEach((button, index) => {
               adsWatched = data.adsWatched || adsWatched;
               updateDisplay();
             } else {
-              alert(data.message || "Ad failed, please try again.");
+              alert(data.message || "Ad failed.");
             }
           })
           .catch(err => {
-            console.error("Error watching ad:", err);
-            alert("Failed to watch ad. Please try again.");
+            console.error("Watch error:", err);
+            alert("Failed to reward. Try again.");
           });
-      }, 1000); // extra delay before rewarding
+      } else {
+        alert("Please watch the ad for at least 5 seconds to earn rewards.");
+      }
+    } else {
+      secondsOpen++;
     }
   }, 1000);
 }
-
-//connect wallet
-function connectWallet() {
-  if (typeof TonConnect === 'undefined') {
-    alert("TONConnect SDK not loaded!");
-    return;
-  }
-
-  const tonConnect = new TonConnect({
-    manifestUrl: 'https://your-vercel-url.vercel.app/tonconnect-manifest.json' // Replace with real URL later
-  });
-
-  tonConnect.connect()
-    .then(() => {
-      alert("Wallet connected!");
-    })
-    .catch((err) => {
-      alert("Failed to connect wallet: " + err.message);
-    });
-}
-
 
 
 
   function withdrawTON() {
     if (coins < 100) {
-      alert("You need at least 100 coins (0.01 TON) to withdraw.");
+      alert("You need at least 100 coins to withdraw.");
       return;
     }
 
@@ -173,20 +129,15 @@ function connectWallet() {
     })
       .then(res => res.json())
       .then(data => {
-        if (tg && tg.showAlert) {
-          tg.showAlert(data.message);
-        } else {
-          alert(data.message);
-        }
-
+        (tg && tg.showAlert) ? tg.showAlert(data.message) : alert(data.message);
         if (data.success) {
           coins = 0;
           updateDisplay();
         }
       })
       .catch(err => {
-        console.error("Withdrawal error:", err);
-        alert("Withdrawal failed. Please try again.");
+        console.error("Withdraw error:", err);
+        alert("Withdraw failed.");
       });
   }
 
@@ -195,13 +146,13 @@ function connectWallet() {
     if (navigator.share) {
       navigator.share({
         title: "Join Watch2TON",
-        text: "Earn TON by watching ads. Join using my link!",
+        text: "Earn TON watching ads. Use my link!",
         url: referralLink
       }).catch(() => {
-        prompt("Copy this link and share with friends:", referralLink);
+        prompt("Copy link:", referralLink);
       });
     } else {
-      prompt("Copy this link and share with friends:", referralLink);
+      prompt("Copy link:", referralLink);
     }
   });
 
@@ -209,13 +160,11 @@ function connectWallet() {
     fetch(`/api/referral-stats/${userId}`)
       .then(res => res.json())
       .then(data => {
-        const referralStatsBox = document.getElementById("referralStatsBox");
-        const referralCount = document.getElementById("referralCount");
-        referralCount.textContent = data.referrals;
-        referralStatsBox.style.display = "block";
+        document.getElementById("referralCount").textContent = data.referrals || 0;
+        document.getElementById("referralStatsBox").style.display = "block";
       })
       .catch(() => {
-        alert("Failed to load referral stats.");
+        alert("Couldn't load stats.");
       });
   });
 
@@ -226,28 +175,17 @@ function connectWallet() {
     });
   });
 
-  // Add copy event listener
   if (copyReferralBtn) {
     copyReferralBtn.addEventListener("click", () => {
       const input = document.getElementById("referralLink");
       input.select();
-      input.setSelectionRange(0, 99999);
       navigator.clipboard.writeText(input.value)
-        .then(() => {
-          if (tg && tg.showAlert) {
-            tg.showAlert("Referral link copied!");
-          } else {
-            alert("Referral link copied!");
-          }
-        })
-        .catch(() => {
-          alert("Failed to copy referral link.");
-        });
+        .then(() => tg?.showAlert?.("Copied!") || alert("Copied!"))
+        .catch(() => alert("Copy failed."));
     });
   }
 
   watchButtons.forEach(btn => btn.addEventListener("click", watchAd));
   withdrawBtn.addEventListener("click", withdrawTON);
-
   loadUser();
 });
