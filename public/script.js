@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/api/user/${userId}`)
       .then(res => res.json())
       .then(data => {
+        watchButtons.forEach(btn => btn.disabled = false);
         coins = data.coins || 0;
         adsWatched = data.adsWatched || 0;
         updateDisplay();
@@ -64,57 +65,55 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function watchAd() {
-  if (cooldown) return;
-  if (adsWatched >= 10) {
-    alert("You've reached your 10-ad daily limit.");
-    return;
-  }
-
-  const adUrl = "https://www.profitableratecpm.com/v2zuqzjp?key=6daf7222fff905ca7e6c5f88b684e86e";
-  const adWindow = window.open(adUrl, "_blank", "width=500,height=600");
-
-  if (!adWindow) {
-    alert("Please allow popups to watch ads.");
-    return;
-  }
-
-  const requiredSeconds = 5;
-  let secondsOpen = 0;
-
-  const checkAdInterval = setInterval(() => {
-    if (adWindow.closed) {
-      clearInterval(checkAdInterval);
-      if (secondsOpen >= requiredSeconds) {
-        setCooldown(10);
-        fetch("/api/watch", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId })
-        })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              coins = data.coins || coins;
-              adsWatched = data.adsWatched || adsWatched;
-              updateDisplay();
-            } else {
-              alert(data.message || "Ad failed.");
-            }
-          })
-          .catch(err => {
-            console.error("Watch error:", err);
-            alert("Failed to reward. Try again.");
-          });
-      } else {
-        alert("Please watch the ad for at least 5 seconds to earn rewards.");
-      }
-    } else {
-      secondsOpen++;
+    if (cooldown) return;
+    if (adsWatched >= 10) {
+      alert("You've reached your 10-ad daily limit.");
+      return;
     }
-  }, 1000);
-}
 
+    const adUrl = "https://www.profitableratecpm.com/v2zuqzjp?key=6daf7222fff905ca7e6c5f88b684e86e";
+    const adWindow = window.open(adUrl, "_blank", "width=500,height=600");
 
+    if (!adWindow) {
+      alert("Please allow popups to watch ads.");
+      return;
+    }
+
+    const requiredSeconds = 5;
+    let secondsOpen = 0;
+
+    const checkAdInterval = setInterval(() => {
+      if (adWindow.closed) {
+        clearInterval(checkAdInterval);
+        if (secondsOpen >= requiredSeconds) {
+          setCooldown(10);
+          fetch("/api/watch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                coins = data.coins ?? coins;
+                adsWatched = data.adsWatched ?? adsWatched;
+                updateDisplay();
+              } else {
+                alert(data.message || "Ad failed.");
+              }
+            })
+            .catch(err => {
+              console.error("Watch error:", err);
+              alert("Failed to reward. Try again.");
+            });
+        } else {
+          alert("Please watch the ad for at least 5 seconds to earn rewards.");
+        }
+      } else {
+        secondsOpen++;
+      }
+    }, 1000);
+  }
 
   function withdrawTON() {
     if (coins < 100) {
@@ -157,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   referralStatsBtn.addEventListener("click", () => {
-    fetch(`/api/referral-stats/${userId}?userId=${userId}`)
+    fetch(`/api/referral-stats/${userId}`)
       .then(res => res.json())
       .then(data => {
         document.getElementById("referralCount").textContent = data.referrals?.length || 0;
@@ -180,12 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const input = document.getElementById("referralLink");
       input.select();
       navigator.clipboard.writeText(input.value)
-        .then(() => tg?.showAlert?.("Copied!") || alert("Copied!"))
+        .then(() => (tg?.showAlert?.("Copied!") || alert("Copied!")))
         .catch(() => alert("Copy failed."));
     });
   }
 
   watchButtons.forEach(btn => btn.addEventListener("click", watchAd));
   withdrawBtn.addEventListener("click", withdrawTON);
+
   loadUser();
 });
