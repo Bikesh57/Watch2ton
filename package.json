@@ -1,15 +1,18 @@
 {
   "name": "watch2ton",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "botInstance.js",
+  "type": "commonjs",
   "scripts": {
-    "start": "node server.js"
+    "start": "node botInstance.js"
   },
+  "files": [
+    "botInstance.js"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
-  "type": "commonjs",
   "dependencies": {
     "@tonconnect/sdk": "^3.1.0",
     "body-parser": "^2.2.0",
