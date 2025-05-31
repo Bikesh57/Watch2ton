@@ -1,7 +1,7 @@
 const fs = require("fs-extra");
 const USERS_FILE = "users.json";
 
-let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
+const users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();

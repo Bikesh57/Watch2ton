@@ -1,7 +1,7 @@
 const fs = require("fs-extra");
 const USERS_FILE = "users.json";
 
-let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
+const users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -28,9 +28,11 @@ export default async function handler(req, res) {
   if (user.adsWatched === 1 && user.refBy && !user.hasRewardedReferrer) {
     const referrer = users[user.refBy];
     if (referrer) {
-      referrer.coins += 5;
-      user.hasRewardedReferrer = true;
-    }
+  referrer.coins += 5;
+  referrer.earnings = (referrer.earnings || 0) + 5;
+  referrer.referrals = [...(referrer.referrals || []), userId];
+  user.hasRewardedReferrer = true;
+}
   }
 
   fs.writeJsonSync(USERS_FILE, users);

@@ -11,13 +11,16 @@ export default async function handler(req, res) {
   let users = fs.existsSync(USERS_FILE) ? fs.readJsonSync(USERS_FILE) : {};
 
   if (!users[userId]) {
-    users[userId] = {
-      coins: 0,
-      adsWatched: 0,
-      refBy: ref || null,
-      hasRewardedReferrer: false,
-      lastReset: Date.now()
-    };
+  users[userId] = {
+    coins: 0,
+    adsWatched: 0,
+    refBy: ref || null,
+    hasRewardedReferrer: false,
+    lastReset: Date.now(),
+    referrals: [],
+    earnings: 0
+  };
+
     console.log(`🆕 New user: ${userId}, Referred by: ${ref || "None"}`);
     fs.writeJsonSync(USERS_FILE, users); // Only write when a new user is added
   }
