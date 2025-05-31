@@ -64,6 +64,47 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+
+function connectWallet() {
+  // The function must be async if you want to use await
+  // So better declare it async outside DOMContentLoaded and call from event listener
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // ...
+
+  async function connectWallet() {
+    if (!window.ton) {
+      alert("TON Wallet extension not found. Please install TON Wallet.");
+      return;
+    }
+  
+    try {
+      const permissions = await window.ton.requestPermissions();
+      console.log("Wallet permissions:", permissions);
+  
+      const account = await window.ton.getAccount();
+      console.log("Connected account:", account);
+  
+      alert("Wallet connected: " + account.address);
+      // Save or use account.address as needed
+    } catch (error) {
+      console.error("Wallet connection failed:", error);
+      alert("Failed to connect wallet.");
+    }
+  }
+  
+  const connectWalletBtn = document.getElementById("connectWalletBtn");
+  if (connectWalletBtn) {
+    connectWalletBtn.addEventListener("click", connectWallet);
+  }
+
+  // ...
+});
+
+
+
+
   function watchAd() {
     if (cooldown) return;
     if (adsWatched >= 10) {
@@ -87,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearInterval(checkAdInterval);
         if (secondsOpen >= requiredSeconds) {
           setCooldown(10);
+console.log("Sending watch ad request for user:", userId);
           fetch("/api/watch", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -155,17 +197,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  referralStatsBtn.addEventListener("click", () => {
-    fetch(`/api/referral-stats/${userId}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("referralCount").textContent = data.referrals?.length || 0;
-        document.getElementById("referralStatsBox").style.display = "block";
-      })
-      .catch(() => {
-        alert("Couldn't load stats.");
-      });
-  });
+ referralStatsBtn.addEventListener("click", () => {
+  console.log("Fetching referral stats for user:", userId);
+  fetch(`/api/referral-stats/${userId}`)
+    .then(res => {
+      console.log("Referral stats response status:", res.status);
+      return res.json();
+    })
+    .then(data => {
+      console.log("Referral stats data:", data);
+      document.getElementById("referralCount").textContent = data.referrals?.length || 0;
+      document.getElementById("referralStatsBox").style.display = "block";
+    })
+    .catch(err => {
+      console.error("Failed to fetch referral stats:", err);
+      alert("Couldn't load stats.");
+    });
+});
+
 
   document.querySelectorAll("#referralBox button, #referralStatsBox button").forEach(btn => {
     btn.addEventListener("click", (e) => {
